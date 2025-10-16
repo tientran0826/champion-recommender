@@ -1,0 +1,25 @@
+[project]
+name = "champion-recommender-project"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "lucas.tran"}
+]
+package-mode = false
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi (>=0.119.0,<0.120.0)",
+    "pydantic (>=2.12.2,<3.0.0)",
+    "pydantic-settings (>=2.11.0,<3.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "pre-commit (>=4.3.0,<5.0.0)"
+]

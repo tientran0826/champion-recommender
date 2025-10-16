@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  minio:
+    image: minio/minio
+    container_name: minio_storage
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes: 
+      - ./storage/minio:/data
+    command: server --console-address ":9001" /data
+
+  posgresdb:
+    image: postgres:11
+    container_name: postgres_for_dagster
+    environment:
+      POSTGRES_USER: "dagster"
+      POSTGRES_PASSWORD: "dagster"
+      POSTGRES_DB: "dagster_db"
+    networks:
+      - dagster_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dagster -d dagster_db"]
+      interval: 10s
+      timeout: 8s
+      retries: 5
+
+  dagster:
+    build:
+      context: .
+      dockerfile: Dockerfile_dagster
+    container_name: dagster
+    ports:
+      - "3000:3000"
+    environment:
+      - DAGSTER_HOME=/opt/dagster/dagster_home/
+      - DAGSTER_POSTGRES_USER=dagster
+      - DAGSTER_POSTGRES_PASSWORD=dagster
+      - DAGSTER_POSTGRES_DB=dagster_db
+    volumes:
+      - ./dagster_home:/opt/dagster/dagster_home/
+    command: dagster-webserver -h 0.0.0.0 -p 3000
+    networks:
+      - dagster_net
+      
+networks:
+  dagster_net:

@@ -1,0 +1,31 @@
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+.env/
+
+# Minio Storage
+storage/*
+
+# Dagster 
+dagster_home/*
+# Except these two files
+!dagster_home/dagster.yaml
+!dagster_home/workspace.yaml
+
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Logs and cache
+*.log
+*.cache/
+.pytest_cache/
+
+# OS files
+.DS_Store
+Thumbs.db
