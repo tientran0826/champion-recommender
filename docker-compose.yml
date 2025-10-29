@@ -7,21 +7,45 @@ services:
     ports:
       - "9000:9000"
       - "9001:9001"
-    volumes: 
+    environment:
+    - MINIO_ROOT_USER=admin
+    - MINIO_ROOT_PASSWORD=admin1234
+    volumes:
       - ./storage/minio:/data
     command: server --console-address ":9001" /data
+    networks:
+      - dagster_net
 
-  posgresdb:
-    image: postgres:11
-    container_name: postgres_for_dagster
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+        sleep 5 &&
+        mc alias set rcm_minio http://minio:9000 admin admin1234 &&
+        mc mb rcm_minio/lake &&
+        mc anonymous set public rcm_minio/lake
+      "
+    networks:
+      - dagster_net
+
+  postgres:
+    image: postgres:13
+    container_name: shared_postgres
+    ports:
+      - "5432:5432"
     environment:
-      POSTGRES_USER: "dagster"
-      POSTGRES_PASSWORD: "dagster"
-      POSTGRES_DB: "dagster_db"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "postgres"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init-db-postgres.sql:/docker-entrypoint-initdb.d/init-db.sql
     networks:
       - dagster_net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U dagster -d dagster_db"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 8s
       retries: 5
@@ -38,11 +62,111 @@ services:
       - DAGSTER_POSTGRES_USER=dagster
       - DAGSTER_POSTGRES_PASSWORD=dagster
       - DAGSTER_POSTGRES_DB=dagster_db
+      - DAGSTER_POSTGRES_HOST=shared_postgres
+      - DAGSTER_POSTGRES_PORT=5432
     volumes:
       - ./dagster_home:/opt/dagster/dagster_home/
     command: dagster-webserver -h 0.0.0.0 -p 3000
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - dagster_net
-      
+
+  hive-metastore:
+    image: 'starburstdata/hive:3.1.2-e.18'
+    hostname: hive-metastore
+    container_name: hive_metastore
+    ports:
+      - '9083:9083'
+    restart: always
+    environment:
+      # Use shared PostgreSQL for Hive Metastore
+      HIVE_METASTORE_DRIVER: org.postgresql.Driver
+      HIVE_METASTORE_JDBC_URL: jdbc:postgresql://postgres:5432/metastore
+      HIVE_METASTORE_USER: hive
+      HIVE_METASTORE_PASSWORD: hive
+
+      HIVE_METASTORE_WAREHOUSE_DIR: s3a://lake/
+
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: admin
+      S3_SECRET_KEY: admin1234
+      S3_PATH_STYLE_ACCESS: "true"
+      REGION: ""
+
+      GOOGLE_CLOUD_KEY_FILE_PATH: ""
+      AZURE_ADL_CLIENT_ID: ""
+      AZURE_ADL_CREDENTIAL: ""
+      AZURE_ADL_REFRESH_URL: ""
+      AZURE_ABFS_STORAGE_ACCOUNT: ""
+      AZURE_ABFS_ACCESS_KEY: ""
+      AZURE_WASB_STORAGE_ACCOUNT: ""
+      AZURE_ABFS_OAUTH: ""
+      AZURE_ABFS_OAUTH_TOKEN_PROVIDER: ""
+      AZURE_ABFS_OAUTH_CLIENT_ID: ""
+      AZURE_ABFS_OAUTH_SECRET: ""
+      AZURE_ABFS_OAUTH_ENDPOINT: ""
+      AZURE_WASB_ACCESS_KEY: ""
+      HIVE_METASTORE_USERS_IN_ADMIN_ROLE: "admin"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    healthcheck:
+      test: bash -c "exec 6<> /dev/tcp/localhost/9083"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - dagster_net
+
+  trino:
+    image: 'trinodb/trino:400'
+    container_name: trino
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./trino/etc:/etc/trino
+    depends_on:
+      hive-metastore:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    networks:
+      - dagster_net
+    healthcheck:
+      test: ["CMD", "trino", "--server", "localhost:8080", "--catalog", "system", "--schema", "runtime", "--execute", "SELECT 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+
+  trino-init:
+    image: trinodb/trino:400
+    container_name: trino_init
+    depends_on:
+      trino:
+        condition: service_healthy
+    entrypoint: /bin/bash
+    command: >
+      -c "
+      echo 'Waiting for Trino...' &&
+      for i in {1..30}; do
+        trino --server trino:8080 --catalog system --schema runtime --execute 'SELECT 1' && break || sleep 2;
+      done &&
+      trino --server trino:8080 --user admin --execute \"SHOW CATALOGS\" &&
+      trino --server trino:8080 --user admin -f /init/define-schemas-trino.sql
+      "
+    volumes:
+      - ./sql:/init
+    networks:
+      - dagster_net
+
+volumes:
+  postgres_data:
+
 networks:
   dagster_net:
