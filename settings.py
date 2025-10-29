@@ -9,11 +9,17 @@ class Settings(BaseSettings):
     )
 
     RIOT_API_KEY: str
-    SUPPORTED_REGIONS: list[str] = ["EUN1", "EUW1", "JP1", "KR", "LA1", "NA1", "VN2"]
+    SUPPORTED_REGIONS: list[str] = ["KR"]
     BASE_RIOT_API_URL: str = "api.riotgames.com"
 
     # Queue types
     SOLO_QUEUE: str = "RANKED_SOLO_5x5"
+
+    # S3 Configuration
+    S3_ENDPOINT: str = "localhost:9000"
+    S3_ACCESS_KEY: str = "admin"
+    S3_SECRET_KEY: str = "admin1234"
+    S3_DATA_BUCKET: str = "lake"
 
 settings = Settings()
 print(settings.RIOT_API_KEY)
