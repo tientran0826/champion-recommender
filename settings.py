@@ -7,7 +7,13 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         case_sensitive=False
     )
-    
-    riot_api_key: str
+
+    RIOT_API_KEY: str
+    SUPPORTED_REGIONS: list[str] = ["EUN1", "EUW1", "JP1", "KR", "LA1", "NA1", "VN2"]
+    BASE_RIOT_API_URL: str = "api.riotgames.com"
+
+    # Queue types
+    SOLO_QUEUE: str = "RANKED_SOLO_5x5"
 
 settings = Settings()
+print(settings.RIOT_API_KEY)
