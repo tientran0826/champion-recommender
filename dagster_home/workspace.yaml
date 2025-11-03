@@ -1,4 +1,4 @@
 load_from:
-  - python_file:
-      relative_path: "data_service/jobs/api_crawler.py"
-      working_directory: "/opt/dagster/dagster_home"
+  - python_module:
+      module_name: dagster_home.data_service.repository
+      working_directory: /opt/dagster/

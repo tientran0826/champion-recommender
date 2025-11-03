@@ -284,3 +284,21 @@ class S3Operator:
         except S3Error as e:
             self.logger.error(f"Failed to create presigned URL for {key}: {e}")
             return None
+
+    def upload_fileobj(self, key: str, fileobj: bytes, metadata: Optional[Dict] = None) -> bool:
+        try:
+            from io import BytesIO
+            stream = BytesIO(fileobj)
+            self.client.put_object(
+                bucket_name=self.bucket_name,
+                object_name=key,
+                data=stream,
+                length=len(fileobj),
+                content_type='text/csv',
+                metadata=metadata or {}
+            )
+            self.logger.info(f"Uploaded {key} to {self.bucket_name}")
+            return True
+        except Exception as e:
+            self.logger.error(f"Failed to upload {key}: {e}")
+            return False
