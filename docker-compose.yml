@@ -59,6 +59,7 @@ services:
       - "3000:3000"
     environment:
       - DAGSTER_HOME=/opt/dagster/dagster_home/
+      - PYTHONPATH=/opt/dagster/
       - DAGSTER_POSTGRES_USER=dagster
       - DAGSTER_POSTGRES_PASSWORD=dagster
       - DAGSTER_POSTGRES_DB=dagster_db
@@ -66,7 +67,32 @@ services:
       - DAGSTER_POSTGRES_PORT=5432
     volumes:
       - ./dagster_home:/opt/dagster/dagster_home/
+      - ./.env:/opt/dagster/dagster_home/.env   # <- now relative path works
+      - ./settings.py:/opt/dagster/settings.py
     command: dagster-webserver -h 0.0.0.0 -p 3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - dagster_net
+  dagster-daemon:
+    build:
+      context: .
+      dockerfile: Dockerfile_dagster
+    container_name: dagster-daemon
+    environment:
+      - DAGSTER_HOME=/opt/dagster/dagster_home/
+      - PYTHONPATH=/opt/dagster/
+      - DAGSTER_POSTGRES_USER=dagster
+      - DAGSTER_POSTGRES_PASSWORD=dagster
+      - DAGSTER_POSTGRES_DB=dagster_db
+      - DAGSTER_POSTGRES_HOST=shared_postgres
+      - DAGSTER_POSTGRES_PORT=5432
+    volumes:
+      - ./dagster_home:/opt/dagster/dagster_home/
+      - ./.env:/opt/dagster/dagster_home/.env   # <- now relative path works
+      - ./settings.py:/opt/dagster/settings.py
+    command: dagster-daemon run
     depends_on:
       postgres:
         condition: service_healthy

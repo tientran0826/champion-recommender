@@ -1,9 +1,9 @@
-from data_service.utils.common import request_riot_api
-from data_service.configs import configs
+from dagster_home.data_service.utils.common import request_riot_api
+from dagster_home.data_service.configs import configs
 from settings import settings
 from datetime import datetime
 from typing import Dict, List
-from data_service.utils.db_operator import S3Operator
+from dagster_home.data_service.utils.db_operator import S3Operator
 from loguru import logger
 
 class RiotAPIClient:
@@ -20,7 +20,10 @@ class RiotAPIClient:
         results = {}
         for region in self.regions:
             try:
-                resp = request_riot_api(region=region, endpoint=f"{configs.CHALLENGER_ENDPOINT}/{configs.SOLO_QUEUE}")
+                resp = request_riot_api(
+                    region=region,
+                    endpoint=configs.CHALLENGER_ENDPOINT.format(queue=configs.SOLO_QUEUE)
+                )
                 results[region] = resp
                 logger.info(f"Fetched {region}")
             except Exception as e:
