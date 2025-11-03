@@ -19,6 +19,6 @@ class Settings(BaseSettings):
     S3_ENDPOINT: str = "minio:9000"
     S3_ACCESS_KEY: str = "admin"
     S3_SECRET_KEY: str = "admin1234"
-    S3_DATA_BUCKET: str = "lake"
+    S3_DATA_BUCKET: str = "data-lakehouse"
 
 settings = Settings()

@@ -20,7 +20,25 @@ CREATE TABLE IF NOT EXISTS hive.lake.players (
     region VARCHAR
 )
 WITH (
-    external_location = 's3a://lake/players/',
+    external_location = 's3a://data-lakehouse/raw/players/',
     format = 'JSON',
     partitioned_by = ARRAY['region']
+);
+
+CREATE SCHEMA IF NOT EXISTS hive.warehouse;
+
+CREATE TABLE IF NOT EXISTS hive.warehouse.matches (
+    match_id VARCHAR,
+    team1_champions VARCHAR,
+    team2_champions VARCHAR,
+    team1_win VARCHAR,
+    game_start VARCHAR,
+    game_date VARCHAR,
+    date VARCHAR
+)
+WITH (
+    external_location = 's3a://data-lakehouse/curated/matches/',
+    format = 'CSV',
+    partitioned_by = ARRAY['date'],
+    skip_header_line_count = 1
 );
