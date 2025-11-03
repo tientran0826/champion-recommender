@@ -9,12 +9,10 @@ venv/
 # Minio Storage
 storage/*
 
-# Dagster 
-dagster_home/*
-# Except these two files
-!dagster_home/dagster.yaml
-!dagster_home/workspace.yaml
+dagster_home/**/__pycache__/
+dagster_home/**/.*
 
+dagster_home/storage/*
 
 # Distribution / packaging
 build/
