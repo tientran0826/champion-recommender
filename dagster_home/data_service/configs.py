@@ -7,4 +7,6 @@ class Configs(BaseSettings):
     # Queue types
     SOLO_QUEUE: str = "RANKED_SOLO_5x5"
 
+    # PIPELINE RUN_TIME
+    RUNTIME: str = "20 3 * * *"
 configs = Configs()

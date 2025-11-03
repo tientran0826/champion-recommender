@@ -21,4 +21,16 @@ class Settings(BaseSettings):
     S3_SECRET_KEY: str = "admin1234"
     S3_DATA_BUCKET: str = "data-lakehouse"
 
+    # TRINO Configuration
+    TRINO_HOST: str = "trino"
+    TRINO_PORT: int = 8080
+    TRINO_USER: str = "admin"
+    TRINO_CATALOG: str = "hive"
+    WAREHOUSE_SCHEMA: str = "warehouse"
+    LAKE_SCHEMA: str = "lake"
+
+    # Table in warehouse
+    MATCHES_TABLE: str = "matches"
+    PLAYERS_TABLE: str = "players"
+
 settings = Settings()
