@@ -16,13 +16,13 @@ class Settings(BaseSettings):
     SOLO_QUEUE: str = "RANKED_SOLO_5x5"
 
     # S3 Configuration
-    S3_ENDPOINT: str = "minio:9000"
+    S3_ENDPOINT: str = "localhost:9000"
     S3_ACCESS_KEY: str = "admin"
     S3_SECRET_KEY: str = "admin1234"
     S3_DATA_BUCKET: str = "data-lakehouse"
 
     # TRINO Configuration
-    TRINO_HOST: str = "trino"
+    TRINO_HOST: str = "localhost"
     TRINO_PORT: int = 8080
     TRINO_USER: str = "admin"
     TRINO_CATALOG: str = "hive"
@@ -32,5 +32,8 @@ class Settings(BaseSettings):
     # Table in warehouse
     MATCHES_TABLE: str = "matches"
     PLAYERS_TABLE: str = "players"
+
+    MLFLOW_S3_ENDPOINT_URL: str = "http://localhost:9000"
+    MLFLOW_BACKEND_STORE_URI: str =  "http://localhost:5001"
 
 settings = Settings()

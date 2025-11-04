@@ -175,12 +175,12 @@ class MatchDataWarehouseLoaderS3:
                 )
 
                 if success:
-                    logger.info(f"✅ Saved {len(df_partition)} matches for {game_date} to S3: {key}")
+                    logger.info(f"Saved {len(df_partition)} matches for {game_date} to S3: {key}")
                 else:
-                    logger.error(f"❌ Failed to save matches for {game_date} to S3: {key}")
+                    logger.error(f"Failed to save matches for {game_date} to S3: {key}")
 
             except Exception as e:
-                logger.error(f"❌ Exception saving partition {game_date}: {e}")
+                logger.error(f"Exception saving partition {game_date}: {e}")
                 import traceback
                 logger.error(traceback.format_exc())
 
