@@ -100,6 +100,28 @@ services:
     networks:
       - dagster_net
 
+  model_api:
+    build:
+      context: .
+      dockerfile: Dockerfile_model_api
+    container_name: model_api
+    ports:
+      - "8000:8000"
+    environment:
+      - S3_ENDPOINT=minio:9000
+      - S3_ACCESS_KEY=admin
+      - S3_SECRET_KEY=admin1234
+      - TRINO_HOST=trino
+      - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
+      - MLFLOW_BACKEND_STORE_URI=http://mlflow:5000
+    depends_on:
+      minio:
+        condition: service_started
+      trino:
+        condition: service_healthy
+    networks:
+      - dagster_net
+
   mlflow:
     build:
       context: .
@@ -124,7 +146,7 @@ services:
       minio:
         condition: service_started
     ports:
-      - "5001:5000"
+      - "5000:5000"
     networks:
       - dagster_net
 
