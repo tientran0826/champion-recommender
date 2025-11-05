@@ -1,5 +1,5 @@
 import numpy as np
-
+import pandas as pd
 class ChampionRecommender:
     def __init__(self, relations: dict):
         """
@@ -11,9 +11,8 @@ class ChampionRecommender:
         self.synergy_matrix = relations["synergy_matrix"]
         self.counter_matrix = relations["counter_matrix"]
         self.champion_index = relations["champion_index"]
-        print(self.Ts, self.Tc, self.synergy_matrix, self.counter_matrix, self.champion_index)
 
-    def recommend_weighted(self, allies: list[str], opponents: list[str], bans: list[str] = None, top_n: int = 5):
+    def recommend_weighted(self, allies: list[str], opponents: list[str], bans: list[str] = None):
         """
         Recommend top N champions based on weighted average of synergy and counter scores.
 
@@ -35,6 +34,7 @@ class ChampionRecommender:
         Tc = self.Tc
         idx = self.champion_index
         champions = self.champion_index  # all available champion names
+
 
         results = []
 
@@ -59,6 +59,8 @@ class ChampionRecommender:
             score = (synergy_weighted + counter_weighted) / total_weight
             results.append((c, score))
 
-        # Sort by highest score and return top N
+        # Sort & convert to DataFrame
         results.sort(key=lambda x: x[1], reverse=True)
-        return results[:top_n]
+
+        df_results = pd.DataFrame(results, columns=["champion", "score"])
+        return df_results

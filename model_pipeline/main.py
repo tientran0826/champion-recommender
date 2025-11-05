@@ -51,6 +51,7 @@ class ServingRequest(BaseModel):
     top_n: int = 5
     allies: List[str]
     opponents: List[str]
+    choose_positions: List[str]
     bans: Optional[List[str]] = None
     model_name: Optional[str] = "champion_recommender"
 
@@ -254,6 +255,7 @@ async def predict_champion(request: ServingRequest):
         model_name=request.model_name,
         allies=request.allies,
         opponents=request.opponents,
+        choose_positions=request.choose_positions,
         bans=request.bans
     )
     try:

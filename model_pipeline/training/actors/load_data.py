@@ -1,4 +1,4 @@
-from model_pipeline.training.utils.trino_operator import TrinoDBOperator
+from model_pipeline.utils.trino_operator import TrinoDBOperator
 from settings import settings
 import trino
 from loguru import logger
