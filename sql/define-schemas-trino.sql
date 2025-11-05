@@ -25,6 +25,17 @@ WITH (
     partitioned_by = ARRAY['region']
 );
 
+CREATE TABLE IF NOT EXISTS hive.lake.champions (
+    champion_name VARCHAR,
+    roles VARCHAR,
+    icon_url VARCHAR
+)
+WITH (
+    external_location = 's3a://data-lakehouse/raw/champions/',
+    format = 'CSV',
+    skip_header_line_count = 1
+);
+
 CREATE SCHEMA IF NOT EXISTS hive.warehouse;
 
 CREATE TABLE IF NOT EXISTS hive.warehouse.matches (

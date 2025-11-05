@@ -1,4 +1,5 @@
-from dagster_home.data_service.schedule.api_crawler_schedule import daily_api_crawler_schedule
+from dagster_home.data_service.schedule.match_crawler_schedule import daily_match_crawler_schedule
 from dagster_home.data_service.schedule.model_training_schedule import monthly_model_training_schedule
+from dagster_home.data_service.schedule.champion_crawler_schedule import daily_champion_crawler_schedule
 
-__all__ = ["daily_api_crawler_schedule", "monthly_model_training_schedule"]
+__all__ = ["daily_match_crawler_schedule", "monthly_model_training_schedule", "daily_champion_crawler_schedule"]
