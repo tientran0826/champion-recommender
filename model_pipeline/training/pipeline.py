@@ -1,8 +1,8 @@
 
 
 from model_pipeline.training.actors.load_data import DataLoader
-from model_pipeline.training.utils.trino_operator import TrinoDBOperator
-from model_pipeline.training.utils.s3_operator import S3Operator
+from model_pipeline.utils.trino_operator import TrinoDBOperator
+from model_pipeline.utils.s3_operator import S3Operator
 from model_pipeline.training.actors.matrix_calculator import ChampionRelations
 from settings import settings
 from datetime import datetime
