@@ -63,6 +63,7 @@ services:
       - DAGSTER_POSTGRES_DB=dagster_db
       - DAGSTER_POSTGRES_HOST=shared_postgres
       - DAGSTER_POSTGRES_PORT=5432
+      - FASTAPI_HOST=model_api
     volumes:
       - ./dagster_home:/opt/dagster/dagster_home/
       - ./.env:/opt/dagster/dagster_home/.env   # <- now relative path works
@@ -88,7 +89,7 @@ services:
       - DAGSTER_POSTGRES_PORT=5432
       - S3_ENDPOINT=minio:9000
       - TRINO_HOST=trino
-
+      - FASTAPI_HOST=http://model_api:8000
     volumes:
       - ./dagster_home:/opt/dagster/dagster_home/
       - ./.env:/opt/dagster/dagster_home/.env   # <- now relative path works

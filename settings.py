@@ -36,4 +36,6 @@ class Settings(BaseSettings):
     MLFLOW_S3_ENDPOINT_URL: str = "http://localhost:9000"
     MLFLOW_BACKEND_STORE_URI: str =  "http://localhost:5000"
 
+    FASTAPI_HOST: str = "http://localhost:8000"
+
 settings = Settings()
