@@ -71,3 +71,17 @@ def fetch_match_data_by_puuids(context, puuids: list[str]):
         'table_name': settings.PLAYERS_TABLE
     }
     return table_info
+
+
+@op(
+    out=Out(dict),
+    description="Fetch champion roles and images from Riot API"
+)
+def fetch_champion_roles(context):
+    client = RiotAPIClient(regions=settings.SUPPORTED_REGIONS)
+    client.fetch_champion_roles()
+    table_info = {
+        'schema_name': settings.LAKE_SCHEMA,
+        'table_name': settings.CHAMPION_TABLE
+    }
+    return table_info

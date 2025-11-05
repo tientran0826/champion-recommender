@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     # Table in warehouse
     MATCHES_TABLE: str = "matches"
     PLAYERS_TABLE: str = "players"
+    CHAMPION_TABLE: str = "champions"
 
     MLFLOW_S3_ENDPOINT_URL: str = "http://localhost:9000"
     MLFLOW_BACKEND_STORE_URI: str =  "http://localhost:5000"

@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime, timedelta
 from model_pipeline.training.pipeline import TrainingPipeline
+from model_pipeline.serving.predictor import ServingPipeline
 import mlflow
 import mlflow.pyfunc
 from loguru import logger
@@ -13,6 +14,7 @@ import os
 import sys
 from typing import List, Optional
 from mlflow.tracking import MlflowClient
+from fastapi.middleware.cors import CORSMiddleware
 
 os.environ["MLFLOW_DEFAULT_ARTIFACT_ROOT"] = f"s3://{settings.S3_DATA_BUCKET}/mlflow/artifacts"
 os.environ["MLFLOW_S3_ENDPOINT_URL"] = settings.MLFLOW_S3_ENDPOINT_URL
@@ -22,6 +24,14 @@ os.environ["AWS_SECRET_ACCESS_KEY"] = settings.S3_SECRET_KEY
 mlflow.set_tracking_uri(settings.MLFLOW_BACKEND_STORE_URI)
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 training_jobs = {}
 
 class TrainingRequest(BaseModel):
@@ -36,6 +46,16 @@ class TrainingResponse(BaseModel):
     message: str
     training_start_date: str
     training_end_date: str
+
+class ServingRequest(BaseModel):
+    top_n: int = 5
+    allies: List[str]
+    opponents: List[str]
+    bans: Optional[List[str]] = None
+    model_name: Optional[str] = "champion_recommender"
+
+class ServingResponse(BaseModel):
+    result: dict
 
 class JobStatus(BaseModel):
     job_id: str
@@ -228,45 +248,18 @@ async def list_jobs():
     """List all training jobs"""
     return {"jobs": list(training_jobs.values())}
 
-@app.get("/models/production")
-async def get_production_model():
-    """Get current production model info including artifact S3 path"""
+@app.post("/predict", response_model=ServingResponse)
+async def predict_champion(request: ServingRequest):
+    recommender = ServingPipeline(
+        model_name=request.model_name,
+        allies=request.allies,
+        opponents=request.opponents,
+        bans=request.bans
+    )
     try:
-        client = MlflowClient()
-        model_name = "champion_recommender"
-
-        alias_used = True
-        try:
-            # Try to get the production model by alias
-            model_version = client.get_model_version_by_alias(model_name, "production")
-        except Exception as alias_error:
-            alias_used = False
-            logger.warning(f"No production alias found: {alias_error}")
-            # fallback to latest version
-            versions = client.search_model_versions(f"name='{model_name}'")
-            if not versions:
-                return {"message": "No model versions found", "hint": "Try training a model first"}
-            model_version = max(versions, key=lambda v: int(v.version))
-
-        # Get the run info to fetch parameters
-        run_id = model_version.run_id
-        run_data = mlflow.get_run(run_id).data
-
-        # Extract the S3 artifact location if logged
-        s3_path = run_data.params.get("s3_artifact_location", None)
-
-        return {
-            "model_name": model_name,
-            "version": model_version.version,
-            "alias": "production" if alias_used else "none",
-            "run_id": run_id,
-            "source": model_version.source,
-            "tags": model_version.tags,
-            "description": model_version.description,
-            "creation_timestamp": model_version.creation_timestamp,
-            "s3_artifact_location": s3_path
-        }
-
+        result = recommender.predict(top_n=request.top_n)
+        return ServingResponse(
+           result=result
+        )
     except Exception as e:
-        logger.error(f"Error getting production model: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")

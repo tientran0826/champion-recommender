@@ -1,3 +1,5 @@
+import csv
+from io import StringIO
 import time
 from datetime import datetime
 from typing import Dict, List, Optional
@@ -6,7 +8,7 @@ from dagster_home.data_service.utils.common import request_riot_api
 from dagster_home.data_service.configs import configs
 from settings import settings
 from dagster_home.data_service.utils.db_operator import S3Operator
-
+import requests
 
 def retry_request(func, max_retries=5, backoff=5, **kwargs):
     """
@@ -129,3 +131,33 @@ class RiotAPIClient:
             logger.info(f"Saved match {match_id}")
         else:
             logger.error(f"Failed to save match {match_id}")
+
+    def fetch_champion_roles(self):
+        url = "https://cdn.merakianalytics.com/riot/lol/resources/latest/en-US/champions.json"
+        data = requests.get(url).json()
+
+        versions_url = "https://ddragon.leagueoflegends.com/api/versions.json"
+        patch_version = requests.get(versions_url).json()[0]
+
+        csv_buffer = StringIO()
+        writer = csv.writer(csv_buffer)
+        writer.writerow(["champion_name", "positions", "icon_url"])
+
+        for champ_name, info in data.items():
+            positions = info.get("positions", {})
+
+            if isinstance(positions, dict):
+                lane_list = [pos for pos, value in positions.items() if value > 0]
+            elif isinstance(positions, list):
+                lane_list = positions
+            else:
+                lane_list = []
+
+            lane_str = ",".join(lane_list)
+
+            icon_url = f"https://ddragon.leagueoflegends.com/cdn/{patch_version}/img/champion/{champ_name}.png"
+            writer.writerow([champ_name, lane_str, icon_url])
+
+        csv_bytes = csv_buffer.getvalue().encode("utf-8")
+        key = "raw/champions/champion_positions_icons.csv"
+        return self.s3_operator.upload_fileobj(key=key, fileobj=csv_bytes)
