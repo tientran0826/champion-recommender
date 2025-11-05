@@ -1,3 +1,4 @@
 from dagster_home.data_service.schedule.api_crawler_schedule import daily_api_crawler_schedule
+from dagster_home.data_service.schedule.model_training_schedule import monthly_model_training_schedule
 
-__all__ = ["daily_api_crawler_schedule"]
+__all__ = ["daily_api_crawler_schedule", "monthly_model_training_schedule"]

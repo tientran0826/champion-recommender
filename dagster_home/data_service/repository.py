@@ -1,8 +1,10 @@
 from dagster import repository
 from dagster_home.data_service.jobs.api_crawler import api_crawler_job
 from dagster_home.data_service.jobs.load_data_to_warehouse import load_data_to_warehouse
+from dagster_home.data_service.jobs.training_job import trigger_training_job
 from dagster_home.data_service.sensors import trigger_warehouse_after_api_crawler
-from dagster_home.data_service.schedule import daily_api_crawler_schedule
+from dagster_home.data_service.schedule import daily_api_crawler_schedule, monthly_model_training_schedule
+
 @repository
 def data_service_repository():
     """Repository containing all jobs and sensors"""
@@ -10,8 +12,10 @@ def data_service_repository():
         # Jobs
         api_crawler_job,
         load_data_to_warehouse,
+        trigger_training_job,
         # Schedules
         daily_api_crawler_schedule,
+        monthly_model_training_schedule,
         # Sensors
         trigger_warehouse_after_api_crawler,
     ]

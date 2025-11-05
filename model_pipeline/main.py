@@ -74,7 +74,6 @@ def health_check():
         "mlflow_status": mlflow_status
     }
 
-
 def run_training_pipeline(
     job_id: str,
     training_start_date: str,

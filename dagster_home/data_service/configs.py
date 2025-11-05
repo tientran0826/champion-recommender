@@ -8,5 +8,7 @@ class Configs(BaseSettings):
     SOLO_QUEUE: str = "RANKED_SOLO_5x5"
 
     # PIPELINE RUN_TIME
-    RUNTIME: str = "20 3 * * *"
+    INGEST_DATA_RUNTIME: str = "00 23 * * *"
+    MODEL_TRAINING_RUNTIME: str = "0 0 1 * *"
+
 configs = Configs()
