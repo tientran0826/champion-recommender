@@ -8,9 +8,34 @@ This project uses **Poetry** for Python dependencies and **Docker Compose** for 
 
 - [Poetry](https://python-poetry.org/)
 - [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/)
-- Git
 
 ---
+
+## Architecture Overview
+#### 1. Data Layer
+
+Handles data ingestion, storage, and access.
+
+- Dagster – orchestrates the data pipelines and schedules tasks.
+- Riot APIs – source of raw match and champion data.
+- Minio (S3-compatible) – stores raw & transformed data, as well as MLFlow artifacts.
+- Trino + Hive Metastore – provides queryable data warehouse built over Minio.
+
+#### 2.ML Layer
+
+Handles training, model registry, and inference logic.
+
+- FastAPI (Model API) – endpoints for training & serving models.
+- MLFlow – experiment tracking, model versioning, and registry (uses Minio as backend).
+
+### 3.Application Layer
+
+Provides UI and interaction for users.
+
+- Dash – frontend UI for champion recommendation.
+- Trino – provides champion metadata and history for visualization.
+- FastAPI (Serving) – provides live recommendations.
+
 
 ## Running the Project
 
