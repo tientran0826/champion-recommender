@@ -57,10 +57,27 @@ This command will:
 - Install pre-commit hooks if available.
 - Start all Docker containers in detached mode.
 
-## Stopping the Project
+## Pipeline Overview
 
-To stop the running containers:
+The pipeline runs automatically on a schedule once both the **ingestion** and **training** pipelines are completed.  
 
-```bash
-make stop_app
-```
+In **testing mode**, you can manually execute it by following these steps:
+
+1. **Ensure all Docker containers are running properly.**  
+2. **Access Dagster**, then:  
+   - Trigger the **`match_crawler_job`** in the *Jobs* tab — this will automatically trigger the **`load_data_to_warehouse`** job to sync data so it can be viewed in Trino.  
+   - Run the **`champion_crawler_job`** to fetch the latest information about all champions in the game (used to support the UI).  
+3. **Trigger the training job:**  
+   - Run **`trigger_training_job`** in Dagster to train the model and assign the production tag, **or**  
+   - Access the **FastAPI docs** of the `model_pipeline` service to manually trigger training through the API.  
+     *(All default configurations are already set.)*  
+4. Once all the steps above are completed, you can start using the **UI**.
+
+---
+
+## Open Points
+
+- The **evaluation metrics** are implemented in the `exploration` folder, but they are not yet integrated into the model pipeline. Currently, only the **latest trained model** is tagged for production and served.  
+- **Model monitoring** (e.g., with Grafana or similar frameworks) still needs to be set up.  
+- The **Dash-based UI** is a simple experimental interface for testing user interactions — it can be further improved for production use.
+  
