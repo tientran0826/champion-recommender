@@ -36,7 +36,7 @@ Provides UI and interaction for users.
 - Trino – provides champion metadata and history for visualization.
 - FastAPI (Serving) – provides live recommendations.
 
-![System Diagram](images/diagram.png)
+![System Diagram](images/system_diagram.jpg)
 
 [image]
 
