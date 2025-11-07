@@ -7,8 +7,7 @@ from typing import List
 from front_end.utils.trino_operator import TrinoDBOperator
 from settings import settings
 
-API_BASE_URL = "http://localhost:8000"
-
+API_BASE_URL = settings.FASTAPI_HOST
 # ----------------------
 # Load champions from Trino
 # ----------------------
@@ -289,4 +288,4 @@ def generate_recommendations(n_clicks, *states):
 # Run server
 # ----------------------
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", debug=False, port=8005)

@@ -8,7 +8,7 @@ class Settings(BaseSettings):
         case_sensitive=False
     )
 
-    RIOT_API_KEY: str
+    RIOT_API_KEY: str = ''
     SUPPORTED_REGIONS: list[str] = ["KR"]
     BASE_RIOT_API_URL: str = "api.riotgames.com"
 
