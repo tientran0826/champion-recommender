@@ -1,6 +1,12 @@
-# Champion Recommendation - Enhancement Version
+# Champion Recommender System For League of Legends
 
-This project uses **Poetry** for Python dependencies and **Docker Compose** for running the application.
+## Overview
+
+This project is based on the algorithm from **["Champion Recommender System for League of Legends"](https://courses.cs.washington.edu/courses/cse547/21sp/old_projects/kim_etal.pdf)** by the University of Washington.  
+
+For more details, you can explore the algorithm implementation in the [`exploration`](./exploration) folder, where I have also included the original research paper.  
+
+The purpose of this project is to build an **end-to-end pipeline** covering **data ingestion**, **model training**, and **model serving** through a simple user interface.
 
 ---
 
@@ -37,8 +43,6 @@ Provides UI and interaction for users.
 - FastAPI (Serving) – provides live recommendations.
 
 ![System Diagram](images/system_diagram.jpg)
-
-[image]
 
 ## Running the Project
 
