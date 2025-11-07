@@ -122,7 +122,21 @@ services:
         condition: service_healthy
     networks:
       - dagster_net
-
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile_fe
+    container_name: frontend
+    ports:
+      - "80:8005"
+    depends_on:
+      trino:
+        condition: service_healthy
+    networks:
+      - dagster_net
+    environment:
+      - FASTAPI_HOST=http://model_api:8000
+      - TRINO_HOST=trino
   mlflow:
     build:
       context: .
